@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/GerenciadorContatos.Api/GerenciadorContatos.Api.csproj" />
+    <Project Path="src/GerenciadorContatos.Application/GerenciadorContatos.Application.csproj" />
+    <Project Path="src/GerenciadorContatos.Communication/GerenciadorContatos.Communication.csproj" />
+    <Project Path="src/GerenciadorContatos.Domain/GerenciadorContatos.Domain.csproj" />
+    <Project Path="src/GerenciadorContatos.Exception/GerenciadorContatos.Exception.csproj" />
+    <Project Path="src/GerenciadorContatos.Infrastructure/GerenciadorContatos.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/" />
+</Solution>
