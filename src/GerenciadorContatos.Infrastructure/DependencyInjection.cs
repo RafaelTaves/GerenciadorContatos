@@ -16,7 +16,9 @@ public static class DependencyInjection
         }
 
         services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlServer(connectionString));
+            options.UseSqlServer(
+                connectionString,
+                sqlServerOptions => sqlServerOptions.EnableRetryOnFailure()));
 
         services.AddScoped<IContactRepository, ContactRepository>();
 
