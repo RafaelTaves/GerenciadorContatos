@@ -1,0 +1,231 @@
+using CommonTestUtilities.Repositories;
+using CommonTestUtilities.Requests;
+using FluentAssertions;
+using FluentValidation;
+using GerenciadorContatos.Application.UseCases.Contacts.Activate;
+using GerenciadorContatos.Application.UseCases.Contacts.Create;
+using GerenciadorContatos.Application.UseCases.Contacts.Deactivate;
+using GerenciadorContatos.Application.UseCases.Contacts.Delete;
+using GerenciadorContatos.Application.UseCases.Contacts.GetAll;
+using GerenciadorContatos.Application.UseCases.Contacts.GetById;
+using GerenciadorContatos.Application.UseCases.Contacts.Update;
+using GerenciadorContatos.Domain.Entities;
+using GerenciadorContatos.Domain.Enums;
+using Xunit;
+
+namespace GerenciadorContatos.UnitTests.Application.UseCases.Contacts;
+
+public class ContactUseCaseTests
+{
+    [Fact]
+    public void Create_Should_Add_Contact_And_Return_Response()
+    {
+        // Arrange
+        var repository = new InMemoryContactRepository();
+        var validator = new CreateContactRequestValidator();
+        var useCase = new CreateContactUseCase(repository, validator);
+        var request = CreateContactRequestBuilder.Build();
+
+        // Act
+        var response = useCase.Execute(request);
+
+        // Assert
+        response.Id.Should().NotBeEmpty();
+        response.Name.Should().Be(request.Name);
+        response.BirthDate.Should().Be(request.BirthDate);
+        response.Gender.Should().Be(request.Gender);
+        response.IsActive.Should().BeTrue();
+        repository.GetById(response.Id).Should().NotBeNull();
+    }
+
+    [Fact]
+    public void Create_Should_Throw_When_Request_Is_Invalid()
+    {
+        // Arrange
+        var repository = new InMemoryContactRepository();
+        var validator = new CreateContactRequestValidator();
+        var useCase = new CreateContactUseCase(repository, validator);
+        var request = CreateContactRequestBuilder.Build() with
+        {
+            Name = string.Empty
+        };
+
+        // Act
+        Action act = () => useCase.Execute(request);
+
+        // Assert
+        act.Should().Throw<ValidationException>();
+    }
+
+    [Fact]
+    public void Update_Should_Change_Contact_Data_When_Contact_Exists()
+    {
+        // Arrange
+        var repository = new InMemoryContactRepository();
+        var validator = new UpdateContactRequestValidator();
+        var useCase = new UpdateContactUseCase(repository, validator);
+        var contact = Contact.Create(
+            "John Doe",
+            DateOnly.FromDateTime(DateTime.UtcNow.AddYears(-25)),
+            Gender.Male);
+        var request = UpdateContactRequestBuilder.Build();
+
+        repository.Seed(contact);
+
+        // Act
+        var response = useCase.Execute(contact.Id, request);
+
+        // Assert
+        response.Name.Should().Be(request.Name);
+        response.BirthDate.Should().Be(request.BirthDate);
+        response.Gender.Should().Be(request.Gender);
+        repository.GetById(contact.Id)!.Name.Should().Be(request.Name);
+    }
+
+    [Fact]
+    public void Update_Should_Throw_When_Contact_Does_Not_Exist()
+    {
+        // Arrange
+        var repository = new InMemoryContactRepository();
+        var validator = new UpdateContactRequestValidator();
+        var useCase = new UpdateContactUseCase(repository, validator);
+        var request = UpdateContactRequestBuilder.Build();
+
+        // Act
+        Action act = () => useCase.Execute(Guid.NewGuid(), request);
+
+        // Assert
+        act.Should().Throw<KeyNotFoundException>();
+    }
+
+    [Fact]
+    public void GetById_Should_Return_Active_Contact()
+    {
+        // Arrange
+        var repository = new InMemoryContactRepository();
+        var useCase = new GetContactByIdUseCase(repository);
+        var contact = Contact.Create(
+            "John Doe",
+            DateOnly.FromDateTime(DateTime.UtcNow.AddYears(-25)),
+            Gender.Male);
+
+        repository.Seed(contact);
+
+        // Act
+        var response = useCase.Execute(contact.Id);
+
+        // Assert
+        response.Id.Should().Be(contact.Id);
+        response.Name.Should().Be(contact.Name);
+    }
+
+    [Fact]
+    public void GetById_Should_Throw_When_Contact_Is_Inactive()
+    {
+        // Arrange
+        var repository = new InMemoryContactRepository();
+        var useCase = new GetContactByIdUseCase(repository);
+        var contact = Contact.Create(
+            "John Doe",
+            DateOnly.FromDateTime(DateTime.UtcNow.AddYears(-25)),
+            Gender.Male);
+
+        contact.Deactivate();
+        repository.Seed(contact);
+
+        // Act
+        Action act = () => useCase.Execute(contact.Id);
+
+        // Assert
+        act.Should().Throw<KeyNotFoundException>();
+    }
+
+    [Fact]
+    public void GetAll_Should_Return_Only_Active_Contacts()
+    {
+        // Arrange
+        var repository = new InMemoryContactRepository();
+        var useCase = new GetAllContactsUseCase(repository);
+        var activeContact = Contact.Create(
+            "John Doe",
+            DateOnly.FromDateTime(DateTime.UtcNow.AddYears(-25)),
+            Gender.Male);
+        var inactiveContact = Contact.Create(
+            "Jane Doe",
+            DateOnly.FromDateTime(DateTime.UtcNow.AddYears(-30)),
+            Gender.Female);
+
+        inactiveContact.Deactivate();
+        repository.Seed(activeContact, inactiveContact);
+
+        // Act
+        var response = useCase.Execute();
+
+        // Assert
+        response.Should().HaveCount(1);
+        response.Single().Id.Should().Be(activeContact.Id);
+    }
+
+    [Fact]
+    public void Activate_Should_Activate_Contact()
+    {
+        // Arrange
+        var repository = new InMemoryContactRepository();
+        var useCase = new ActivateContactUseCase(repository);
+        var contact = Contact.Create(
+            "John Doe",
+            DateOnly.FromDateTime(DateTime.UtcNow.AddYears(-25)),
+            Gender.Male);
+
+        contact.Deactivate();
+        repository.Seed(contact);
+
+        // Act
+        var response = useCase.Execute(contact.Id);
+
+        // Assert
+        response.IsActive.Should().BeTrue();
+        repository.GetById(contact.Id)!.IsActive.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Deactivate_Should_Deactivate_Contact()
+    {
+        // Arrange
+        var repository = new InMemoryContactRepository();
+        var useCase = new DeactivateContactUseCase(repository);
+        var contact = Contact.Create(
+            "John Doe",
+            DateOnly.FromDateTime(DateTime.UtcNow.AddYears(-25)),
+            Gender.Male);
+
+        repository.Seed(contact);
+
+        // Act
+        var response = useCase.Execute(contact.Id);
+
+        // Assert
+        response.IsActive.Should().BeFalse();
+        repository.GetById(contact.Id)!.IsActive.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Delete_Should_Remove_Contact_From_Repository()
+    {
+        // Arrange
+        var repository = new InMemoryContactRepository();
+        var useCase = new DeleteContactUseCase(repository);
+        var contact = Contact.Create(
+            "John Doe",
+            DateOnly.FromDateTime(DateTime.UtcNow.AddYears(-25)),
+            Gender.Male);
+
+        repository.Seed(contact);
+
+        // Act
+        useCase.Execute(contact.Id);
+
+        // Assert
+        repository.GetById(contact.Id).Should().BeNull();
+    }
+}
