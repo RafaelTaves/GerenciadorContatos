@@ -12,8 +12,8 @@ public class GetContactByIdUseCase(IContactRepository contactRepository)
             throw new ArgumentException("Contact id is required.", nameof(id));
         }
 
-        var contact = contactRepository.GetActiveById(id)
-            ?? throw new KeyNotFoundException("Active contact not found.");
+        var contact = contactRepository.GetById(id)
+            ?? throw new KeyNotFoundException("Contact not found.");
 
         return new ContactResponse(
             contact.Id,

@@ -99,6 +99,29 @@ public class ContactUseCaseTests
     }
 
     [Fact]
+    public void Update_Should_Throw_When_Contact_Is_Inactive()
+    {
+        // Arrange
+        var repository = new InMemoryContactRepository();
+        var validator = new UpdateContactRequestValidator();
+        var useCase = new UpdateContactUseCase(repository, validator);
+        var contact = Contact.Create(
+            "John Doe",
+            DateOnly.FromDateTime(DateTime.UtcNow.AddYears(-25)),
+            Gender.Male);
+        var request = UpdateContactRequestBuilder.Build();
+
+        contact.Deactivate();
+        repository.Seed(contact);
+
+        // Act
+        Action act = () => useCase.Execute(contact.Id, request);
+
+        // Assert
+        act.Should().Throw<KeyNotFoundException>();
+    }
+
+    [Fact]
     public void GetById_Should_Return_Active_Contact()
     {
         // Arrange
@@ -120,7 +143,7 @@ public class ContactUseCaseTests
     }
 
     [Fact]
-    public void GetById_Should_Throw_When_Contact_Is_Inactive()
+    public void GetById_Should_Return_Contact_When_It_Is_Inactive()
     {
         // Arrange
         var repository = new InMemoryContactRepository();
@@ -134,10 +157,11 @@ public class ContactUseCaseTests
         repository.Seed(contact);
 
         // Act
-        Action act = () => useCase.Execute(contact.Id);
+        var response = useCase.Execute(contact.Id);
 
         // Assert
-        act.Should().Throw<KeyNotFoundException>();
+        response.Id.Should().Be(contact.Id);
+        response.IsActive.Should().BeFalse();
     }
 
     [Fact]

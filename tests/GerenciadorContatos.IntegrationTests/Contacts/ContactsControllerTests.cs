@@ -85,7 +85,7 @@ public class ContactsControllerTests
     }
 
     [Fact]
-    public async Task Deactivate_Should_Remove_Contact_From_Public_Reads()
+    public async Task Deactivate_Should_Remove_Contact_From_List_But_Keep_Detail_Available()
     {
         // Arrange
         using var factory = new TestWebApplicationFactory();
@@ -102,17 +102,21 @@ public class ContactsControllerTests
         var getByIdResponse = await client.GetAsync($"/api/contacts/{contact.Id}");
         var getAllResponse = await client.GetAsync("/api/contacts");
         var getAllContent = await getAllResponse.Content.ReadFromJsonAsync<List<ContactResponse>>();
+        var getByIdContent = await getByIdResponse.Content.ReadFromJsonAsync<ContactResponse>();
 
         // Assert
         patchResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        getByIdResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        getByIdResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        getByIdContent.Should().NotBeNull();
+        getByIdContent!.Id.Should().Be(contact.Id);
+        getByIdContent.IsActive.Should().BeFalse();
         getAllResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         getAllContent.Should().NotBeNull();
         getAllContent.Should().BeEmpty();
     }
 
     [Fact]
-    public async Task GetById_Should_Return_NotFound_When_Contact_Is_Inactive()
+    public async Task GetById_Should_Return_Contact_When_It_Is_Inactive()
     {
         // Arrange
         using var factory = new TestWebApplicationFactory();
@@ -127,8 +131,12 @@ public class ContactsControllerTests
 
         // Act
         var response = await client.GetAsync($"/api/contacts/{contact.Id}");
+        var content = await response.Content.ReadFromJsonAsync<ContactResponse>();
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        content.Should().NotBeNull();
+        content!.Id.Should().Be(contact.Id);
+        content.IsActive.Should().BeFalse();
     }
 }

@@ -16,8 +16,8 @@ public class UpdateContactUseCase(IContactRepository contactRepository, IValidat
 
         validator.ValidateAndThrow(request);
 
-        var contact = contactRepository.GetById(id)
-            ?? throw new KeyNotFoundException("Contact not found.");
+        var contact = contactRepository.GetActiveById(id)
+            ?? throw new KeyNotFoundException("Active contact not found.");
 
         contact.Update(request.Name, request.BirthDate, request.Gender);
 
