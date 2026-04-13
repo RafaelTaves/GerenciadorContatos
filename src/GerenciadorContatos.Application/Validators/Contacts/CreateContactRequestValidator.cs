@@ -1,11 +1,11 @@
 using FluentValidation;
-using GerenciadorContatos.Communication.Requests;
+using GerenciadorContatos.Application.DTOs.Contacts;
 
-namespace GerenciadorContatos.Application.UseCases.Contacts.Update;
+namespace GerenciadorContatos.Application.Validators.Contacts;
 
-public class UpdateContactRequestValidator : AbstractValidator<UpdateContactRequest>
+public class CreateContactRequestValidator : AbstractValidator<CreateContactRequest>
 {
-    public UpdateContactRequestValidator()
+    public CreateContactRequestValidator()
     {
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
 

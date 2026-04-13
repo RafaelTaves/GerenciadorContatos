@@ -1,12 +1,7 @@
 using FluentValidation;
-using GerenciadorContatos.Application.UseCases.Contacts.Activate;
-using GerenciadorContatos.Application.UseCases.Contacts.Create;
-using GerenciadorContatos.Application.UseCases.Contacts.Deactivate;
-using GerenciadorContatos.Application.UseCases.Contacts.Delete;
-using GerenciadorContatos.Application.UseCases.Contacts.GetAll;
-using GerenciadorContatos.Application.UseCases.Contacts.GetById;
-using GerenciadorContatos.Application.UseCases.Contacts.Update;
-using GerenciadorContatos.Communication.Requests;
+using GerenciadorContatos.Application.DTOs.Contacts;
+using GerenciadorContatos.Application.Services.Contacts;
+using GerenciadorContatos.Application.Validators.Contacts;
 using GerenciadorContatos.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,13 +15,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 builder.Services.AddInfrastructure(connectionString);
 
-builder.Services.AddScoped<CreateContactUseCase>();
-builder.Services.AddScoped<UpdateContactUseCase>();
-builder.Services.AddScoped<GetContactByIdUseCase>();
-builder.Services.AddScoped<GetAllContactsUseCase>();
-builder.Services.AddScoped<ActivateContactUseCase>();
-builder.Services.AddScoped<DeactivateContactUseCase>();
-builder.Services.AddScoped<DeleteContactUseCase>();
+builder.Services.AddScoped<IContactService, ContactService>();
 
 builder.Services.AddScoped<IValidator<CreateContactRequest>, CreateContactRequestValidator>();
 builder.Services.AddScoped<IValidator<UpdateContactRequest>, UpdateContactRequestValidator>();

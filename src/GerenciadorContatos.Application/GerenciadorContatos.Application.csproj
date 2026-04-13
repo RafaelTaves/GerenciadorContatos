@@ -11,13 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\GerenciadorContatos.Communication\GerenciadorContatos.Communication.csproj" />
     <ProjectReference Include="..\GerenciadorContatos.Domain\GerenciadorContatos.Domain.csproj" />
-    <ProjectReference Include="..\GerenciadorContatos.Exception\GerenciadorContatos.Exception.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="UseCases\" />
   </ItemGroup>
 
 </Project>

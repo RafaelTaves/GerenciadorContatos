@@ -1,7 +1,6 @@
 using CommonTestUtilities.Requests;
 using FluentAssertions;
-using GerenciadorContatos.Application.UseCases.Contacts.Create;
-using GerenciadorContatos.Communication.Requests;
+using GerenciadorContatos.Application.Validators.Contacts;
 using GerenciadorContatos.Domain.Enums;
 
 namespace Validator.Tests.Contacts.Create;

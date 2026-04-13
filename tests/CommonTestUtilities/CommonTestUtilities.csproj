@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\GerenciadorContatos.Communication\GerenciadorContatos.Communication.csproj" />
+    <ProjectReference Include="..\..\src\GerenciadorContatos.Application\GerenciadorContatos.Application.csproj" />
     <ProjectReference Include="..\..\src\GerenciadorContatos.Domain\GerenciadorContatos.Domain.csproj" />
   </ItemGroup>
 

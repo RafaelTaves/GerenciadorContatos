@@ -1,6 +1,6 @@
 using GerenciadorContatos.Domain.Enums;
 
-namespace GerenciadorContatos.Communication.Responses;
+namespace GerenciadorContatos.Application.DTOs.Contacts;
 
 public record ContactResponse(
     Guid Id,

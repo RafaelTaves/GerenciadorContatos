@@ -2,15 +2,13 @@
   <Folder Name="/src/">
     <Project Path="src/GerenciadorContatos.Api/GerenciadorContatos.Api.csproj" />
     <Project Path="src/GerenciadorContatos.Application/GerenciadorContatos.Application.csproj" />
-    <Project Path="src/GerenciadorContatos.Communication/GerenciadorContatos.Communication.csproj" />
     <Project Path="src/GerenciadorContatos.Domain/GerenciadorContatos.Domain.csproj" />
-    <Project Path="src/GerenciadorContatos.Exception/GerenciadorContatos.Exception.csproj" />
     <Project Path="src/GerenciadorContatos.Infrastructure/GerenciadorContatos.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/CommonTestUtilities/CommonTestUtilities.csproj" Id="40733854-9377-48d9-a0fe-0cd9163c3746" />
-    <Project Path="tests/GerenciadorContatos.UnitTests/GerenciadorContatos.UnitTests.csproj" />
     <Project Path="tests/GerenciadorContatos.IntegrationTests/GerenciadorContatos.IntegrationTests.csproj" />
+    <Project Path="tests/GerenciadorContatos.UnitTests/GerenciadorContatos.UnitTests.csproj" />
     <Project Path="tests/Validator.Tests/Validator.Tests.csproj" Id="15f43a9e-4b9c-474f-89e1-d95a90e7c13e" />
   </Folder>
 </Solution>

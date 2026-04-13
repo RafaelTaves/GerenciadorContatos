@@ -1,5 +1,5 @@
 ﻿using Bogus;
-using GerenciadorContatos.Communication.Requests;
+using GerenciadorContatos.Application.DTOs.Contacts;
 using GerenciadorContatos.Domain.Enums;
 
 namespace CommonTestUtilities.Requests;

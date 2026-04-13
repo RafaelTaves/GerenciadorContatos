@@ -2,32 +2,26 @@ using CommonTestUtilities.Repositories;
 using CommonTestUtilities.Requests;
 using FluentAssertions;
 using FluentValidation;
-using GerenciadorContatos.Application.UseCases.Contacts.Activate;
-using GerenciadorContatos.Application.UseCases.Contacts.Create;
-using GerenciadorContatos.Application.UseCases.Contacts.Deactivate;
-using GerenciadorContatos.Application.UseCases.Contacts.Delete;
-using GerenciadorContatos.Application.UseCases.Contacts.GetAll;
-using GerenciadorContatos.Application.UseCases.Contacts.GetById;
-using GerenciadorContatos.Application.UseCases.Contacts.Update;
+using GerenciadorContatos.Application.Services.Contacts;
+using GerenciadorContatos.Application.Validators.Contacts;
 using GerenciadorContatos.Domain.Entities;
 using GerenciadorContatos.Domain.Enums;
 using Xunit;
 
-namespace GerenciadorContatos.UnitTests.Application.UseCases.Contacts;
+namespace GerenciadorContatos.UnitTests.Application.Services.Contacts;
 
-public class ContactUseCaseTests
+public class ContactServiceTests
 {
     [Fact]
     public void Create_Should_Add_Contact_And_Return_Response()
     {
         // Arrange
         var repository = new InMemoryContactRepository();
-        var validator = new CreateContactRequestValidator();
-        var useCase = new CreateContactUseCase(repository, validator);
+        var service = CreateService(repository);
         var request = CreateContactRequestBuilder.Build();
 
         // Act
-        var response = useCase.Execute(request);
+        var response = service.Create(request);
 
         // Assert
         response.Id.Should().NotBeEmpty();
@@ -43,15 +37,14 @@ public class ContactUseCaseTests
     {
         // Arrange
         var repository = new InMemoryContactRepository();
-        var validator = new CreateContactRequestValidator();
-        var useCase = new CreateContactUseCase(repository, validator);
+        var service = CreateService(repository);
         var request = CreateContactRequestBuilder.Build() with
         {
             Name = string.Empty
         };
 
         // Act
-        Action act = () => useCase.Execute(request);
+        Action act = () => service.Create(request);
 
         // Assert
         act.Should().Throw<ValidationException>();
@@ -62,8 +55,7 @@ public class ContactUseCaseTests
     {
         // Arrange
         var repository = new InMemoryContactRepository();
-        var validator = new UpdateContactRequestValidator();
-        var useCase = new UpdateContactUseCase(repository, validator);
+        var service = CreateService(repository);
         var contact = Contact.Create(
             "John Doe",
             DateOnly.FromDateTime(DateTime.UtcNow.AddYears(-25)),
@@ -73,7 +65,7 @@ public class ContactUseCaseTests
         repository.Seed(contact);
 
         // Act
-        var response = useCase.Execute(contact.Id, request);
+        var response = service.Update(contact.Id, request);
 
         // Assert
         response.Name.Should().Be(request.Name);
@@ -87,12 +79,11 @@ public class ContactUseCaseTests
     {
         // Arrange
         var repository = new InMemoryContactRepository();
-        var validator = new UpdateContactRequestValidator();
-        var useCase = new UpdateContactUseCase(repository, validator);
+        var service = CreateService(repository);
         var request = UpdateContactRequestBuilder.Build();
 
         // Act
-        Action act = () => useCase.Execute(Guid.NewGuid(), request);
+        Action act = () => service.Update(Guid.NewGuid(), request);
 
         // Assert
         act.Should().Throw<KeyNotFoundException>();
@@ -103,8 +94,7 @@ public class ContactUseCaseTests
     {
         // Arrange
         var repository = new InMemoryContactRepository();
-        var validator = new UpdateContactRequestValidator();
-        var useCase = new UpdateContactUseCase(repository, validator);
+        var service = CreateService(repository);
         var contact = Contact.Create(
             "John Doe",
             DateOnly.FromDateTime(DateTime.UtcNow.AddYears(-25)),
@@ -115,7 +105,7 @@ public class ContactUseCaseTests
         repository.Seed(contact);
 
         // Act
-        Action act = () => useCase.Execute(contact.Id, request);
+        Action act = () => service.Update(contact.Id, request);
 
         // Assert
         act.Should().Throw<KeyNotFoundException>();
@@ -126,7 +116,7 @@ public class ContactUseCaseTests
     {
         // Arrange
         var repository = new InMemoryContactRepository();
-        var useCase = new GetContactByIdUseCase(repository);
+        var service = CreateService(repository);
         var contact = Contact.Create(
             "John Doe",
             DateOnly.FromDateTime(DateTime.UtcNow.AddYears(-25)),
@@ -135,7 +125,7 @@ public class ContactUseCaseTests
         repository.Seed(contact);
 
         // Act
-        var response = useCase.Execute(contact.Id);
+        var response = service.GetById(contact.Id);
 
         // Assert
         response.Id.Should().Be(contact.Id);
@@ -147,7 +137,7 @@ public class ContactUseCaseTests
     {
         // Arrange
         var repository = new InMemoryContactRepository();
-        var useCase = new GetContactByIdUseCase(repository);
+        var service = CreateService(repository);
         var contact = Contact.Create(
             "John Doe",
             DateOnly.FromDateTime(DateTime.UtcNow.AddYears(-25)),
@@ -157,7 +147,7 @@ public class ContactUseCaseTests
         repository.Seed(contact);
 
         // Act
-        var response = useCase.Execute(contact.Id);
+        var response = service.GetById(contact.Id);
 
         // Assert
         response.Id.Should().Be(contact.Id);
@@ -169,7 +159,7 @@ public class ContactUseCaseTests
     {
         // Arrange
         var repository = new InMemoryContactRepository();
-        var useCase = new GetAllContactsUseCase(repository);
+        var service = CreateService(repository);
         var activeContact = Contact.Create(
             "John Doe",
             DateOnly.FromDateTime(DateTime.UtcNow.AddYears(-25)),
@@ -183,7 +173,7 @@ public class ContactUseCaseTests
         repository.Seed(activeContact, inactiveContact);
 
         // Act
-        var response = useCase.Execute();
+        var response = service.GetAll();
 
         // Assert
         response.Should().HaveCount(1);
@@ -195,7 +185,7 @@ public class ContactUseCaseTests
     {
         // Arrange
         var repository = new InMemoryContactRepository();
-        var useCase = new ActivateContactUseCase(repository);
+        var service = CreateService(repository);
         var contact = Contact.Create(
             "John Doe",
             DateOnly.FromDateTime(DateTime.UtcNow.AddYears(-25)),
@@ -205,7 +195,7 @@ public class ContactUseCaseTests
         repository.Seed(contact);
 
         // Act
-        var response = useCase.Execute(contact.Id);
+        var response = service.Activate(contact.Id);
 
         // Assert
         response.IsActive.Should().BeTrue();
@@ -217,7 +207,7 @@ public class ContactUseCaseTests
     {
         // Arrange
         var repository = new InMemoryContactRepository();
-        var useCase = new DeactivateContactUseCase(repository);
+        var service = CreateService(repository);
         var contact = Contact.Create(
             "John Doe",
             DateOnly.FromDateTime(DateTime.UtcNow.AddYears(-25)),
@@ -226,7 +216,7 @@ public class ContactUseCaseTests
         repository.Seed(contact);
 
         // Act
-        var response = useCase.Execute(contact.Id);
+        var response = service.Deactivate(contact.Id);
 
         // Assert
         response.IsActive.Should().BeFalse();
@@ -238,7 +228,7 @@ public class ContactUseCaseTests
     {
         // Arrange
         var repository = new InMemoryContactRepository();
-        var useCase = new DeleteContactUseCase(repository);
+        var service = CreateService(repository);
         var contact = Contact.Create(
             "John Doe",
             DateOnly.FromDateTime(DateTime.UtcNow.AddYears(-25)),
@@ -247,9 +237,17 @@ public class ContactUseCaseTests
         repository.Seed(contact);
 
         // Act
-        useCase.Execute(contact.Id);
+        service.Delete(contact.Id);
 
         // Assert
         repository.GetById(contact.Id).Should().BeNull();
+    }
+
+    private static ContactService CreateService(InMemoryContactRepository repository)
+    {
+        return new ContactService(
+            repository,
+            new CreateContactRequestValidator(),
+            new UpdateContactRequestValidator());
     }
 }

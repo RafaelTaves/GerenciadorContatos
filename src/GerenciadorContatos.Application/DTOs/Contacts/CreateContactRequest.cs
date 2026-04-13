@@ -1,6 +1,6 @@
 using GerenciadorContatos.Domain.Enums;
 
-namespace GerenciadorContatos.Communication.Requests;
+namespace GerenciadorContatos.Application.DTOs.Contacts;
 
 public record CreateContactRequest(
     string Name,

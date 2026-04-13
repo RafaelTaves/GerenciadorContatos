@@ -1,27 +1,13 @@
 using FluentValidation;
-using GerenciadorContatos.Application.UseCases.Contacts.Activate;
-using GerenciadorContatos.Application.UseCases.Contacts.Create;
-using GerenciadorContatos.Application.UseCases.Contacts.Deactivate;
-using GerenciadorContatos.Application.UseCases.Contacts.Delete;
-using GerenciadorContatos.Application.UseCases.Contacts.GetAll;
-using GerenciadorContatos.Application.UseCases.Contacts.GetById;
-using GerenciadorContatos.Application.UseCases.Contacts.Update;
-using GerenciadorContatos.Communication.Requests;
-using GerenciadorContatos.Communication.Responses;
+using GerenciadorContatos.Application.DTOs.Contacts;
+using GerenciadorContatos.Application.Services.Contacts;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GerenciadorContatos.Api.Controllers;
 
 [ApiController]
 [Route("api/contacts")]
-public class ContactsController(
-    CreateContactUseCase createContactUseCase,
-    UpdateContactUseCase updateContactUseCase,
-    GetContactByIdUseCase getContactByIdUseCase,
-    GetAllContactsUseCase getAllContactsUseCase,
-    ActivateContactUseCase activateContactUseCase,
-    DeactivateContactUseCase deactivateContactUseCase,
-    DeleteContactUseCase deleteContactUseCase) : ControllerBase
+public class ContactsController(IContactService contactService) : ControllerBase
 {
     [HttpPost]
     [ProducesResponseType(typeof(ContactResponse), StatusCodes.Status201Created)]
@@ -30,7 +16,7 @@ public class ContactsController(
     {
         try
         {
-            var response = createContactUseCase.Execute(request);
+            var response = contactService.Create(request);
             return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
         }
         catch (Exception exception)
@@ -45,7 +31,7 @@ public class ContactsController(
     {
         try
         {
-            var response = getAllContactsUseCase.Execute();
+            var response = contactService.GetAll();
             return Ok(response);
         }
         catch (Exception exception)
@@ -62,7 +48,7 @@ public class ContactsController(
     {
         try
         {
-            var response = getContactByIdUseCase.Execute(id);
+            var response = contactService.GetById(id);
             return Ok(response);
         }
         catch (Exception exception)
@@ -79,7 +65,7 @@ public class ContactsController(
     {
         try
         {
-            var response = updateContactUseCase.Execute(id, request);
+            var response = contactService.Update(id, request);
             return Ok(response);
         }
         catch (Exception exception)
@@ -97,7 +83,7 @@ public class ContactsController(
     {
         try
         {
-            var response = activateContactUseCase.Execute(id);
+            var response = contactService.Activate(id);
             return Ok(response);
         }
         catch (Exception exception)
@@ -115,7 +101,7 @@ public class ContactsController(
     {
         try
         {
-            var response = deactivateContactUseCase.Execute(id);
+            var response = contactService.Deactivate(id);
             return Ok(response);
         }
         catch (Exception exception)
@@ -132,7 +118,7 @@ public class ContactsController(
     {
         try
         {
-            deleteContactUseCase.Execute(id);
+            contactService.Delete(id);
             return NoContent();
         }
         catch (Exception exception)

@@ -1,6 +1,6 @@
 using CommonTestUtilities.Requests;
 using FluentAssertions;
-using GerenciadorContatos.Communication.Responses;
+using GerenciadorContatos.Application.DTOs.Contacts;
 using GerenciadorContatos.Domain.Entities;
 using GerenciadorContatos.Domain.Enums;
 using System.Net;

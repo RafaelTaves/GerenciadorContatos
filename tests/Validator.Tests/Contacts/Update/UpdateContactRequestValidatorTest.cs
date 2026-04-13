@@ -1,6 +1,6 @@
 using CommonTestUtilities.Requests;
 using FluentAssertions;
-using GerenciadorContatos.Application.UseCases.Contacts.Update;
+using GerenciadorContatos.Application.Validators.Contacts;
 using GerenciadorContatos.Domain.Enums;
 
 namespace Validator.Tests.Contacts.Update;
